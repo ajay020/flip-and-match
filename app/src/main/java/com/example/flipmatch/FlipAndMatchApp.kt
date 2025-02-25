@@ -2,40 +2,31 @@ package com.example.flipmatch
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import com.example.flipmatch.ui.game.GameScreen
 import com.example.flipmatch.ui.theme.FlipMatchTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FlipAndMatchApp() {
     FlipMatchTheme {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-            Greeting(
-                name = "Android",
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            topBar = {
+                TopAppBar(
+                    title = { Text("Flip and Match") },
+                )
+            },
+        ) { innerPadding ->
+            GameScreen(
                 modifier = Modifier.padding(innerPadding),
             )
         }
-    }
-}
-
-@Composable
-fun Greeting(
-    name: String,
-    modifier: Modifier = Modifier,
-) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier,
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    FlipMatchTheme {
-        Greeting("Android")
     }
 }

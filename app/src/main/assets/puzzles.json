@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "gridSize": 4,
+    "images": [
+      { "id": 1, "imageRes": null, "emoji": "😊" },
+      { "id": 2, "imageRes": null, "emoji": "🍌" },
+      { "id": 3, "imageRes": null, "emoji": "🥰" },
+      { "id": 4, "imageRes": null, "emoji": "🐶" },
+      { "id": 5, "imageRes": null, "emoji": "😂" },
+      { "id": 6, "imageRes": null, "emoji": "😎" },
+      { "id": 7, "imageRes": null, "emoji": "⌛" },
+      { "id": 8, "imageRes": null, "emoji": "✅" }
+    ]
+  }
+]
+
