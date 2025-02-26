@@ -10,8 +10,10 @@ data class PuzzleCard(
     var isFlipped: Boolean = false,
     var isMatched: Boolean = false,
 ) {
-    // Ensure that at least one (image or emoji) is present
-    init {
-        require(imageRes != null || emoji != null) { "A card must have either an image or an emoji" }
+    val isEmpty: Boolean
+        get() = imageRes == null && emoji == null
+
+    companion object {
+        val EMPTY = PuzzleCard(id = -1) // Placeholder for empty slots
     }
 }

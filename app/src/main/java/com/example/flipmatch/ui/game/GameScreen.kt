@@ -3,13 +3,13 @@ package com.example.flipmatch.ui.game
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
@@ -25,7 +25,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.flipmatch.data.model.Puzzle
 import com.example.flipmatch.data.model.PuzzleCard
 import kotlin.math.sqrt
 
@@ -49,74 +48,84 @@ fun GridContent(
     cards: List<PuzzleCard>,
     onCardClick: (Int) -> Unit,
 ) {
-    Box(
+    val gridSize = sqrt(cards.size.toDouble()).toInt()
+
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(gridSize),
         modifier =
             modifier
                 .fillMaxSize()
-                .background(Color.Green),
-        contentAlignment = Alignment.Center,
+                .background(Color.Gray)
+                .padding(4.dp),
     ) {
-        Column(
-            modifier =
-                modifier
-                    .size(width = 400.dp, height = 400.dp)
-                    .background(Color.Gray)
-                    .padding(4.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            val gridSize = sqrt(cards.size.toDouble()).toInt()
-            for (row in 0 until gridSize) {
-                Row(modifier = Modifier.padding(2.dp)) {
-                    for (col in 0 until gridSize) {
-                        val cardIndex = row * gridSize + col
-                        FlipCard(
-                            card = cards[cardIndex],
-                            onCardClick = {
-                                onCardClick(cardIndex)
-                            },
-                        )
+        itemsIndexed(cards) { index, card ->
+            FlipCard(
+                modifier =
+                    Modifier
+                        .padding(4.dp),
+                card = card,
+                onCardClick = {
+                    if (cards[index].id != -1) {
+                        onCardClick(index)
                     }
-                }
-            }
+                },
+            )
         }
     }
 }
 
 @Composable
 fun FlipCard(
+    modifier: Modifier = Modifier,
     card: PuzzleCard,
     onCardClick: () -> Unit = {},
 ) {
-    Card(
-        modifier =
-            Modifier
-                .padding(4.dp)
-                .size(80.dp)
-                .clickable { onCardClick() },
-        shape = RoundedCornerShape(8.dp),
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            if (card.isFlipped) {
-                if (card.imageRes != null) {
-                    Image(
-                        painter = painterResource(id = card.imageRes),
-                        contentDescription = "Card Image",
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                } else if (card.emoji != null) {
-                    Text(
-                        text = card.emoji,
-                        fontSize = 32.sp,
-                        textAlign = TextAlign.Center,
-                    )
-                }
-            } else {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
+    if (card.isEmpty) {
+        Box(
+            modifier =
+                Modifier
+                    .padding(4.dp)
+                    .size(80.dp),
+        ) {
+            // Empty box (nothing rendered)
+        }
+    } else {
+        Card(
+            modifier =
+                modifier
+                    .padding(4.dp)
+                    .size(80.dp)
+                    .background(Color.Blue)
+                    .clickable { onCardClick() },
+            shape = RoundedCornerShape(8.dp),
+        ) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier =
+                    Modifier
+                        .fillMaxSize()
                 ) {
-                    Text("❔", fontSize = 32.sp) // Back of the card
+                if (card.isFlipped) {
+                    if (card.imageRes != null) {
+                        Image(
+                            painter = painterResource(id = card.imageRes),
+                            contentDescription = "Card Image",
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    } else if (card.emoji != null) {
+                        Text(
+                            text = card.emoji,
+                            fontSize = 32.sp,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text("❔", fontSize = 32.sp) // Back of the card
+                    }
                 }
             }
         }
@@ -131,12 +140,13 @@ fun GridContentPreview() {
             PuzzleCard(
                 id = 1,
                 imageRes = null,
-                emoji = "❤️",
+                emoji = null,
             ),
             PuzzleCard(
                 id = 2,
                 imageRes = null,
                 emoji = "🥰",
+                isFlipped = true
             ),
             PuzzleCard(
                 id = 3,
@@ -158,20 +168,16 @@ fun GridContentPreview() {
                 imageRes = null,
                 emoji = "✅",
             ),
-            PuzzleCard(
-                id = 7,
-                imageRes = null,
-                emoji = "😱",
-            ),
-            PuzzleCard(
-                id = 8,
-                imageRes = null,
-                emoji = "🤢",
-            ),
         )
+
+    val gridSize = 4
+    val imageCards = (cards + cards).take(gridSize * gridSize)
+    val emptySlots = (gridSize * gridSize) - imageCards.size
+    val cardsWithEmptySlots = (imageCards + List(emptySlots) { PuzzleCard.EMPTY }).shuffled()
+
     GridContent(
         modifier = Modifier,
-        cards = cards,
+        cards = cardsWithEmptySlots,
         onCardClick = {},
     )
 }
