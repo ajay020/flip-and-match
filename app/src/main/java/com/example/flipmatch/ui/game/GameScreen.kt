@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -30,16 +31,17 @@ import kotlin.math.sqrt
 
 @Composable
 fun GameScreen(
-    modifier: Modifier,
     viewModel: GameViewModel = viewModel(),
 ) {
     val cards by viewModel.cards.collectAsState()
 
-    GridContent(
-        modifier = modifier,
-        cards = cards,
-        onCardClick = { cardIndex -> viewModel.flipCard(cardIndex) },
-    )
+    Scaffold {
+        GridContent(
+            modifier = Modifier.padding(it),
+            cards = cards,
+            onCardClick = { cardIndex -> viewModel.flipCard(cardIndex) },
+        )
+    }
 }
 
 @Composable
@@ -95,7 +97,6 @@ fun FlipCard(
                 modifier
                     .padding(4.dp)
                     .size(80.dp)
-                    .background(Color.Blue)
                     .clickable { onCardClick() },
             shape = RoundedCornerShape(8.dp),
         ) {
