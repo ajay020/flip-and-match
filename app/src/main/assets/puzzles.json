@@ -1,14 +1,18 @@
 [
   {
     "id": 1,
-    "gridSize": 4,
+    "gridSize": 2,
     "images": [
       { "id": 1, "imageRes": null, "emoji": "😊" },
-      { "id": 2, "imageRes": null, "emoji": "🍌" },
-      { "id": 3, "imageRes": null, "emoji": "🤩" },
-      { "id": 4, "imageRes": null, "emoji": "🐶" },
-      { "id": 5, "imageRes": null, "emoji": "😂" },
-      { "id": 6, "imageRes": null, "emoji": "😎" }
+      { "id": 2, "imageRes": null, "emoji": "🍌" }
+    ]
+  },
+  {
+    "id": 2,
+    "gridSize": 2,
+    "images": [
+      { "id": 1, "imageRes": null, "emoji": "⌛" },
+      { "id": 2, "imageRes": null, "emoji": "🦒" }
     ]
   }
 ]

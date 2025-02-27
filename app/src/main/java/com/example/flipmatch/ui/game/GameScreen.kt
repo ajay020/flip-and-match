@@ -11,6 +11,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -25,15 +27,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.flipmatch.data.model.PuzzleCard
 import kotlin.math.sqrt
 
 @Composable
 fun GameScreen(
-    viewModel: GameViewModel = viewModel(),
+    navController: NavController,
+    viewModel: GameViewModel = hiltViewModel(),
 ) {
     val cards by viewModel.cards.collectAsState()
+    val isGameCompleted by viewModel.isGameCompleted.collectAsState()
 
     Scaffold {
         GridContent(
@@ -41,6 +47,16 @@ fun GameScreen(
             cards = cards,
             onCardClick = { cardIndex -> viewModel.flipCard(cardIndex) },
         )
+        if (isGameCompleted) {
+            GameCompleteDialog(
+                onNextGame = {
+                    viewModel.startNewGame()
+                },
+                onQuit = {
+                    navController.popBackStack()
+                },
+            )
+        }
     }
 }
 
@@ -104,8 +120,8 @@ fun FlipCard(
                 contentAlignment = Alignment.Center,
                 modifier =
                     Modifier
-                        .fillMaxSize()
-                ) {
+                        .fillMaxSize(),
+            ) {
                 if (card.isFlipped) {
                     if (card.imageRes != null) {
                         Image(
@@ -133,6 +149,28 @@ fun FlipCard(
     }
 }
 
+@Composable
+fun GameCompleteDialog(
+    onNextGame: () -> Unit,
+    onQuit: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = { /* Prevent dismiss on outside click */ },
+        title = { Text("Game Completed!") },
+        text = { Text("Do you want to play the next game or quit?") },
+        confirmButton = {
+            Button(onClick = onNextGame) {
+                Text("Next")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onQuit) {
+                Text("Quit")
+            }
+        },
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
 fun GridContentPreview() {
@@ -147,7 +185,7 @@ fun GridContentPreview() {
                 id = 2,
                 imageRes = null,
                 emoji = "🥰",
-                isFlipped = true
+                isFlipped = true,
             ),
             PuzzleCard(
                 id = 3,

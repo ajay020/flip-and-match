@@ -5,6 +5,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
     id("io.gitlab.arturbosch.detekt") version "1.23.6"
     kotlin("plugin.serialization") version "1.9.21"
+    id("com.google.dagger.hilt.android") version "2.51.1" apply false
 }
 detekt {
     config = files("$rootDir/detekt.yml")

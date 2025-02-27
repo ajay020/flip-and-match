@@ -15,7 +15,7 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             HomeScreen(onStartGame = { navController.navigate("game") })
         }
         composable("game") {
-            GameScreen()
+            GameScreen(navController = navController)
         }
     }
 }
