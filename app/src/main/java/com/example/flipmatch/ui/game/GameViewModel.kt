@@ -25,6 +25,12 @@ class GameViewModel
         private val _isGameCompleted = MutableStateFlow(false)
         val isGameCompleted: StateFlow<Boolean> = _isGameCompleted
 
+        private val _movesCount = MutableStateFlow(0) // Track moves
+        val movesCount: StateFlow<Int> = _movesCount
+
+        private val _score = MutableStateFlow(0) // Track score
+        val score: StateFlow<Int> = _score
+
         private val _remainingTime = MutableStateFlow(30)
         val remainingTime: StateFlow<Int> = _remainingTime
 
@@ -45,6 +51,7 @@ class GameViewModel
             viewModelScope.launch {
                 _cards.collectLatest { cards ->
                     if (cards.isNotEmpty() && cards.all { it.isMatched || it.id == -1 }) {
+                        calculateFinalScore()
                         completeGame()
                     }
                 }
@@ -96,6 +103,7 @@ class GameViewModel
                 firstSelectedCard == null -> firstSelectedCard = card
                 secondSelectedCard == null -> {
                     secondSelectedCard = card
+                    _movesCount.value += 1 // Increase move count
                     checkForMatch()
                 }
             }
@@ -107,8 +115,10 @@ class GameViewModel
 
             if (firstSelectedCard!!.id == secondSelectedCard!!.id) {
                 matchCards(firstSelectedCard!!)
+                _score.value += 10 // Add 10 points for a match
                 resetSelection()
             } else {
+                _score.value -= 2 // Deduct 2 points for an incorrect match
                 viewModelScope.launch {
                     delay(500)
                     flipBackCards()
@@ -159,11 +169,18 @@ class GameViewModel
 
         fun startNewGame() {
             _isGameCompleted.value = false
+            _movesCount.value = 0
+            _score.value = 0
+            _remainingTime.value = 30
             currentPuzzleIndex++
             if (currentPuzzleIndex < repository.getPuzzles().size) {
-                _remainingTime.value = 30
                 loadPuzzles()
                 startCountdown()
             }
+        }
+
+        private fun calculateFinalScore() {
+            val timeBonus = _remainingTime.value / 2 // Give extra points for remaining time
+            _score.value += timeBonus
         }
     }

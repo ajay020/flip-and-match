@@ -7,13 +7,14 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun GameCompleteDialog(
+    score: Int,
     onNextGame: () -> Unit,
     onQuit: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = { /* Prevent dismiss on outside click */ },
-        title = { Text("Game Completed!") },
-        text = { Text("Do you want to play the next game or quit?") },
+        title = { Text("Game Over!") },
+        text = { Text("Your Score: $score") },
         confirmButton = {
             Button(onClick = onNextGame) {
                 Text("Next")
