@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.flipmatch.data.model.PuzzleCard
 import com.example.flipmatch.data.repository.PuzzleRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,14 +25,22 @@ class GameViewModel
         private val _isGameCompleted = MutableStateFlow(false)
         val isGameCompleted: StateFlow<Boolean> = _isGameCompleted
 
+        private val _remainingTime = MutableStateFlow(30)
+        val remainingTime: StateFlow<Int> = _remainingTime
+
         private var firstSelectedCard: PuzzleCard? = null
         private var secondSelectedCard: PuzzleCard? = null
         private var isFlipAllowed = true
-
         private var currentPuzzleIndex = 0
+        private var countdownJob: Job? = null
 
         init {
             loadPuzzles()
+            startCountdown()
+            observeCards()
+        }
+
+        private fun observeCards() {
             // Observe cards to check for completion
             viewModelScope.launch {
                 _cards.collectLatest { cards ->
@@ -40,6 +49,18 @@ class GameViewModel
                     }
                 }
             }
+        }
+
+        private fun startCountdown() {
+            countdownJob?.cancel() // Cancel any existing timer
+            countdownJob =
+                viewModelScope.launch {
+                    while (_remainingTime.value > 0) {
+                        delay(1000L) // Wait for 1 second
+                        _remainingTime.value -= 1
+                    }
+                    completeGame() // Auto-complete game if time runs out
+                }
         }
 
         private fun loadPuzzles() {
@@ -133,13 +154,16 @@ class GameViewModel
 
         private fun completeGame() {
             _isGameCompleted.value = true
+            countdownJob?.cancel()
         }
 
         fun startNewGame() {
             _isGameCompleted.value = false
             currentPuzzleIndex++
             if (currentPuzzleIndex < repository.getPuzzles().size) {
+                _remainingTime.value = 30
                 loadPuzzles()
+                startCountdown()
             }
         }
     }
