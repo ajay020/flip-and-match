@@ -13,4 +13,6 @@ interface UserRepository {
         puzzleType: String,
         newScore: Int,
     ): Flow<Boolean>
+
+    fun getTopUsers(): Flow<List<User>>
 }

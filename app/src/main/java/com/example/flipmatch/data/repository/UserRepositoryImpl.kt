@@ -3,6 +3,7 @@ package com.example.flipmatch.data.repository
 import com.example.flipmatch.data.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -82,6 +83,46 @@ class UserRepositoryImpl
                     emit(true) // Emit success
                 } catch (e: Exception) {
                     emit(false) // Emit failure
+                }
+            }
+
+        override fun getTopUsers(): Flow<List<User>> =
+            flow {
+                try {
+                    val topUsersSnapshot =
+                        firestore
+                            .collection("users")
+                            .orderBy("totalScore", Query.Direction.DESCENDING)
+                            .limit(10)
+                            .get()
+                            .await()
+
+                    val topUsers = topUsersSnapshot.toObjects(User::class.java)
+                    val currentUser = auth.currentUser
+
+                    if (currentUser != null) {
+                        val currentUserSnapshot =
+                            firestore
+                                .collection("users")
+                                .document(currentUser.uid)
+                                .get()
+                                .await()
+
+                        val currentUserData = currentUserSnapshot.toObject(User::class.java)
+
+                        if (currentUserData != null && topUsers.none { it.uid == currentUser.uid }) {
+                            // If current user is not in top 10, add them at the end
+                            val updatedList = topUsers.toMutableList().apply { add(currentUserData) }
+                            emit(updatedList)
+                        } else {
+                            emit(topUsers)
+                        }
+                    } else {
+                        emit(topUsers)
+                    }
+                } catch (e: Exception) {
+                    emit(emptyList()) // Return empty list if an error occurs
+                    e.printStackTrace()
                 }
             }
     }
