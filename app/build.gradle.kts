@@ -6,6 +6,8 @@ plugins {
     id("kotlinx-serialization")
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+    id("com.google.gms.google-services")
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -45,7 +47,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.7"
+        kotlinCompilerExtensionVersion = "1.5.11"
     }
     packaging {
         resources {
@@ -80,6 +82,15 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     implementation("com.google.dagger:hilt-android:2.51.1")
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
+    // Firebase Authentication
+    implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
+    implementation(libs.firebase.auth.ktx)
+    // Google Sign-In
+    implementation("com.google.android.gms:play-services-auth:21.3.0")
+
+    implementation("androidx.credentials:credentials:1.1.5")
+    implementation("androidx.credentials:credentials-play-services-auth:1.1.5")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

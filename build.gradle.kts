@@ -6,6 +6,8 @@ plugins {
     id("io.gitlab.arturbosch.detekt") version "1.23.6"
     kotlin("plugin.serialization") version "1.9.21"
     id("com.google.dagger.hilt.android") version "2.51.1" apply false
+    id("com.google.gms.google-services") version "4.4.2" apply false
+    alias(libs.plugins.compose.compiler) apply false
 }
 detekt {
     config = files("$rootDir/detekt.yml")

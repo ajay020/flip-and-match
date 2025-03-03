@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1078906684187",
+    "project_id": "flip-and-match-39552",
+    "storage_bucket": "flip-and-match-39552.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1078906684187:android:044189be5bb8aa484ec9be",
+        "android_client_info": {
+          "package_name": "com.example.flipmatch"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1078906684187-2curvtursor2qqj4002np13ifoftukgr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.flipmatch",
+            "certificate_hash": "7b9401eac53e8d8767dcec0451288bdc38da87e5"
+          }
+        },
+        {
+          "client_id": "1078906684187-phas4n7ct4si6j5mm2te8oon5fki5th3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDEyGiMGvZo1sjmsHvSxqt8HVbHJ8m7o30"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1078906684187-phas4n7ct4si6j5mm2te8oon5fki5th3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

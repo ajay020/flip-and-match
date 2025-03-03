@@ -1,5 +1,6 @@
 package com.example.flipmatch.di
 
+import android.app.Application
 import android.content.Context
 import com.example.flipmatch.data.repository.PuzzleRepository
 import com.example.flipmatch.data.repository.PuzzleRepositoryImpl
@@ -18,4 +19,8 @@ object AppModule {
     fun providePuzzleRepository(
         @ApplicationContext context: Context,
     ): PuzzleRepository = PuzzleRepositoryImpl(context)
+
+    @Provides
+    @Singleton
+    fun provideApplication(): Application = Application()
 }

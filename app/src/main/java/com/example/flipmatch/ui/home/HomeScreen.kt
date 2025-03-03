@@ -14,7 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-fun HomeScreen(onStartGame: () -> Unit) {
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    onStartGame: () -> Unit,
+) {
     Scaffold { paddingValues ->
 
         Column(
