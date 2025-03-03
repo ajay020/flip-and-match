@@ -6,6 +6,11 @@ import kotlinx.coroutines.flow.Flow
 interface UserRepository {
     fun getUserData(): Flow<User?>
 
-    fun logout() {
-    }
+    fun logout()
+
+    fun updateUserScore(
+        uid: String,
+        puzzleType: String,
+        newScore: Int,
+    ): Flow<Boolean>
 }

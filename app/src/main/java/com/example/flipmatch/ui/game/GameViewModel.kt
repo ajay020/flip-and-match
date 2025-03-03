@@ -1,9 +1,13 @@
 package com.example.flipmatch.ui.game
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.flipmatch.data.model.Puzzle
 import com.example.flipmatch.data.model.PuzzleCard
 import com.example.flipmatch.data.repository.PuzzleRepository
+import com.example.flipmatch.data.repository.UserRepository
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -18,6 +22,8 @@ class GameViewModel
     @Inject
     constructor(
         private val repository: PuzzleRepository,
+        private val userRepository: UserRepository,
+        private val auth: FirebaseAuth,
     ) : ViewModel() {
         private val _cards = MutableStateFlow<List<PuzzleCard>>(emptyList())
         val cards: StateFlow<List<PuzzleCard>> = _cards
@@ -36,6 +42,7 @@ class GameViewModel
 
         private var firstSelectedCard: PuzzleCard? = null
         private var secondSelectedCard: PuzzleCard? = null
+        private var currentPuzzle: Puzzle? = null
         private var isFlipAllowed = true
         private var currentPuzzleIndex = 0
         private var countdownJob: Job? = null
@@ -52,9 +59,30 @@ class GameViewModel
                 _cards.collectLatest { cards ->
                     if (cards.isNotEmpty() && cards.all { it.isMatched || it.id == -1 }) {
                         calculateFinalScore()
+                        currentPuzzle?.let {
+                            updateScore(it.difficulty, _score.value)
+                        }
                         completeGame()
                     }
                 }
+            }
+        }
+
+        private fun updateScore(
+            puzzleType: String,
+            newScore: Int,
+        ) {
+            val uid = auth.currentUser?.uid ?: return
+            viewModelScope.launch {
+                userRepository
+                    .updateUserScore(uid, puzzleType, newScore)
+                    .collect { success ->
+                        if (success) {
+                            Log.d("ProfileViewModel", "Score updated successfully!")
+                        } else {
+                            Log.e("ProfileViewModel", "Failed to update score.")
+                        }
+                    }
             }
         }
 
@@ -73,6 +101,7 @@ class GameViewModel
         private fun loadPuzzles() {
             val puzzles = repository.getPuzzles()
             val puzzle = puzzles[currentPuzzleIndex]
+            currentPuzzle = puzzle
             val gridSize = puzzle.gridSize // Use fixed grid size
             val totalCells = gridSize * gridSize
 

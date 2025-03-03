@@ -76,7 +76,7 @@ fun ProfileScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(text = "Name: ${it.name}", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Text(text = "Score: ${it.score}", fontSize = 16.sp)
+                Text(text = "Score: ${it.totalScore}", fontSize = 16.sp)
             }
         }
     }

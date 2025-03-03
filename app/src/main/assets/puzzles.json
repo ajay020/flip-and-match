@@ -1,18 +1,20 @@
 [
   {
     "id": 1,
+    "difficulty": "easy",
     "gridSize": 2,
     "images": [
       { "id": 1, "imageRes": null, "emoji": "😊" },
-      { "id": 2, "imageRes": null, "emoji": "🍌" },
+      { "id": 2, "imageRes": null, "emoji": "🍌" }
     ]
   },
   {
     "id": 2,
+    "difficulty": "easy",
     "gridSize": 2,
     "images": [
       { "id": 1, "imageRes": null, "emoji": "⌛" },
-      { "id": 2, "imageRes": null, "emoji": "🦒" },
+      { "id": 2, "imageRes": null, "emoji": "🦒" }
     ]
   }
 ]

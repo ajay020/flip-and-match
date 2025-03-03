@@ -100,7 +100,6 @@ class LoginViewModel
                             uid = user.uid,
                             name = user.displayName ?: "Unknown",
                             profileImageUrl = user.photoUrl?.toString() ?: "",
-                            score = 0,
                         )
                     userDocRef
                         .set(userData)
