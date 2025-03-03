@@ -1,21 +1,20 @@
 package com.example.flipmatch.ui.profile
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.flipmatch.data.model.User
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.example.flipmatch.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel
     @Inject
     constructor(
-        private val firestore: FirebaseFirestore,
-        private val auth: FirebaseAuth,
+        private val userRepository: UserRepository,
     ) : ViewModel() {
         private val _userData = MutableStateFlow<User?>(null)
         val userData: StateFlow<User?> = _userData
@@ -25,25 +24,17 @@ class ProfileViewModel
         }
 
         private fun fetchUserData() {
-            val user = auth.currentUser
-            user?.let {
-                firestore
-                    .collection("users")
-                    .document(it.uid)
-                    .addSnapshotListener { snapshot, error ->
-                        if (error != null) {
-                            Log.e("ProfileViewModel", "Error fetching user data: ${error.message}")
-                            return@addSnapshotListener
-                        }
-                        if (snapshot != null && snapshot.exists()) {
-                            _userData.value = snapshot.toObject(User::class.java)
-                        }
+            viewModelScope.launch {
+                userRepository
+                    .getUserData()
+                    .collect { user ->
+                        _userData.value = user
                     }
             }
         }
 
         fun logout(onLogoutSuccess: () -> Unit) {
-            auth.signOut()
+            userRepository.logout()
             onLogoutSuccess() // Call navigation after logout
         }
     }
