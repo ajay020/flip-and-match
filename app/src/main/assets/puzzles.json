@@ -1,20 +1,18 @@
 [
   {
     "id": 1,
-    "gridSize": 4,
+    "gridSize": 2,
     "images": [
       { "id": 1, "imageRes": null, "emoji": "😊" },
       { "id": 2, "imageRes": null, "emoji": "🍌" },
-      { "id": 3, "imageRes": null, "emoji": "❤️" }
     ]
   },
   {
     "id": 2,
-    "gridSize": 3,
+    "gridSize": 2,
     "images": [
       { "id": 1, "imageRes": null, "emoji": "⌛" },
       { "id": 2, "imageRes": null, "emoji": "🦒" },
-      { "id": 3, "imageRes": null, "emoji": "🦮" }
     ]
   }
 ]

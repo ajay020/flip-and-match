@@ -12,17 +12,17 @@ import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun FlipAndMatchApp() {
-    val navController = rememberNavController()
+    val rootNavController = rememberNavController()
     val auth = FirebaseAuth.getInstance()
-    val startDestination = if (auth.currentUser != null) Routes.HOME else Routes.LOGIN
+    val startDestination = if (auth.currentUser != null) Routes.MAIN else Routes.LOGIN
 
     FlipMatchTheme {
-        NavHost(navController, startDestination = startDestination) {
+        NavHost(rootNavController, startDestination = startDestination) {
             composable(Routes.LOGIN) {
-                LoginScreen(navController)
+                LoginScreen(rootNavController)
             }
-            composable(Routes.HOME) {
-                MainScreen()
+            composable(Routes.MAIN) {
+                MainScreen(rootNavController = rootNavController)
             }
         }
     }

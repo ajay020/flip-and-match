@@ -7,4 +7,5 @@ object Routes {
     const val LEADERBOARD = "leaderboard"
     const val PROFILE = "profile"
     const val LOGIN = "login"
+    const val MAIN = "main"
 }

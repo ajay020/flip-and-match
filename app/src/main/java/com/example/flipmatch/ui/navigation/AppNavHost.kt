@@ -15,6 +15,7 @@ import com.example.flipmatch.utils.Routes
 fun AppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    rootNavController: NavHostController,
 ) {
     NavHost(navController, startDestination = Routes.HOME, modifier = modifier) {
         composable(Routes.HOME) {
@@ -29,7 +30,15 @@ fun AppNavHost(
             LeaderboardScreen()
         }
         composable(Routes.PROFILE) {
-            ProfileScreen()
+            ProfileScreen(
+                onLogout = {
+                    rootNavController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.MAIN) {
+                            inclusive = true // Clear MAIN screen from backstack
+                        }
+                    }
+                },
+            )
         }
     }
 }

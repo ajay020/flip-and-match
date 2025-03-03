@@ -32,7 +32,7 @@ fun LoginScreen(
 
     LaunchedEffect(user) {
         if (user != null) {
-            navController.navigate(Routes.HOME) {
+            navController.navigate(Routes.MAIN) {
                 popUpTo(Routes.LOGIN) { inclusive = true }
             }
         }

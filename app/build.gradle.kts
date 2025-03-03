@@ -84,6 +84,7 @@ dependencies {
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
     // Firebase Authentication
     implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
+    implementation("com.google.firebase:firebase-firestore-ktx")
     implementation(libs.firebase.auth.ktx)
     // Google Sign-In
     implementation("com.google.android.gms:play-services-auth:21.3.0")
@@ -91,6 +92,9 @@ dependencies {
     implementation("androidx.credentials:credentials:1.1.5")
     implementation("androidx.credentials:credentials-play-services-auth:1.1.5")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+
+    // coil library for image loading
+    implementation("io.coil-kt:coil-compose:2.5.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
