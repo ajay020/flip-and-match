@@ -1,7 +1,6 @@
 package com.example.flipmatch.ui.profile
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -12,8 +11,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,16 +25,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
+    navigateToSetting: () -> Unit,
     profileViewModel: ProfileViewModel = hiltViewModel(),
     onLogout: () -> Unit,
 ) {
@@ -43,16 +42,17 @@ fun ProfileScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(text = "Profile") },
-                actions = {
-                    IconButton(onClick = {
-                        profileViewModel.logout {
-                            onLogout()
-                        }
-                    }) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Logout")
+            ProfileTopAppBar(
+                modifier =
+                    Modifier
+                        .padding(16.dp),
+                onLogout = {
+                    profileViewModel.logout {
+                        onLogout()
                     }
+                },
+                onSettings = {
+                    navigateToSetting()
                 },
             )
         },
@@ -84,23 +84,34 @@ fun ProfileScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileTopAppBar(modifier: Modifier = Modifier) {
+fun ProfileTopAppBar(
+    modifier: Modifier = Modifier,
+    onLogout: () -> Unit,
+    onSettings: () -> Unit,
+) {
     TopAppBar(
-        title = { Text("Profile") },
-        modifier = modifier.background(Color.Blue),
+        modifier = modifier,
+        title = { Text(text = "Profile") },
         actions = {
-            IconButton(
-                modifier = Modifier,
-                onClick = {},
-            ) {
-                Icon(Icons.Default.AccountBox, contentDescription = "Profile")
+            IconButton(onClick = {
+                onLogout()
+            }) {
+                Icon(imageVector = Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Logout")
+            }
+
+            IconButton(onClick = {
+                onSettings()
+            }) {
+                Icon(imageVector = Icons.Default.Settings, contentDescription = "settings")
             }
         },
     )
 }
 
-// @Preview(showBackground = true)
-// @Composable
-// private fun PfofilePreview() {
-//    ProfileScreen()
-// }
+@Preview(showBackground = true)
+@Composable
+private fun PfofilePreview() {
+    ProfileTopAppBar(
+        onLogout = { },
+    ) { }
+}

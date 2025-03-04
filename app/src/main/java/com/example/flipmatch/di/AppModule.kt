@@ -2,6 +2,7 @@ package com.example.flipmatch.di
 
 import android.app.Application
 import android.content.Context
+import com.example.flipmatch.data.DataStoreManager
 import com.example.flipmatch.data.repository.PuzzleRepository
 import com.example.flipmatch.data.repository.PuzzleRepositoryImpl
 import dagger.Module
@@ -22,5 +23,11 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideApplication(): Application = Application()
+    fun provideApplicationContext(): Context = Application()
+
+    @Provides
+    @Singleton
+    fun provideDataStoreManager(
+        @ApplicationContext context: Context,
+    ): DataStoreManager = DataStoreManager(context)
 }

@@ -33,7 +33,7 @@ fun MainScreen(
             }
         },
         bottomBar = {
-            AnimatedVisibility(visible = currentRoute !in setOf(Routes.GAME)) {
+            AnimatedVisibility(visible = currentRoute !in setOf(Routes.GAME, Routes.SETTINGS)) {
                 BottomNavBar(navController)
             }
         },

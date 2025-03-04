@@ -9,6 +9,7 @@ import com.example.flipmatch.ui.game.GameScreen
 import com.example.flipmatch.ui.home.HomeScreen
 import com.example.flipmatch.ui.leaderboard.LeaderboardScreen
 import com.example.flipmatch.ui.profile.ProfileScreen
+import com.example.flipmatch.ui.settings.SettingsScreen
 import com.example.flipmatch.utils.Routes
 
 @Composable
@@ -31,6 +32,7 @@ fun AppNavHost(
         }
         composable(Routes.PROFILE) {
             ProfileScreen(
+                navigateToSetting = { navController.navigate(Routes.SETTINGS) },
                 onLogout = {
                     rootNavController.navigate(Routes.LOGIN) {
                         popUpTo(Routes.MAIN) {
@@ -38,6 +40,11 @@ fun AppNavHost(
                         }
                     }
                 },
+            )
+        }
+        composable(Routes.SETTINGS) {
+            SettingsScreen(
+                navigateToProfile = { navController.navigate(Routes.PROFILE) },
             )
         }
     }
