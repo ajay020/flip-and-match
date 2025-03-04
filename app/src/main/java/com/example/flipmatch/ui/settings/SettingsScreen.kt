@@ -1,5 +1,6 @@
 package com.example.flipmatch.ui.settings
 
+import FlipMatchTheme
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -159,5 +160,13 @@ fun SettingsTopAppBar(
 @Preview(showBackground = true)
 @Composable
 private fun SettingsScreenPreview() {
-//    SettingsScreen()
+    FlipMatchTheme(
+        darkTheme = false,
+    ) {
+        SettingItem(
+            title = "Sound",
+            checked = true,
+            onToggle = {},
+        )
+    }
 }
