@@ -1,5 +1,6 @@
 package com.example.flipmatch.ui.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -25,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.flipmatch.utils.DarkMode
 
 @Composable
 fun SettingsScreen(
@@ -43,37 +46,68 @@ fun SettingsScreen(
                 },
             )
         },
-    ) {
+    ) { paddingValues ->
+
         Column(
             modifier =
                 Modifier
-                    .padding(it)
+                    .padding(paddingValues)
                     .fillMaxSize()
                     .padding(16.dp),
         ) {
-            SettingItem(
-                title = "Dark Mode",
-                checked = darkMode,
-                onToggle = {
-                    viewModel.toggleDarkMode(it)
-                },
+            Text(
+                text = "Settings",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(bottom = 16.dp),
             )
+
+            Text(text = "Dark Mode", style = MaterialTheme.typography.bodyLarge)
+            DarkModeSelector(darkMode, onModeSelected = { viewModel.setDarkMode(it) })
 
             SettingItem(
                 title = "Sound",
                 checked = sound,
-                onToggle = {
-                    viewModel.toggleSound(it)
-                },
+                onToggle = { viewModel.toggleSound(it) },
             )
 
             SettingItem(
                 title = "Notifications",
                 checked = notifications,
-                onToggle = {
-                    viewModel.toggleNotifications(it)
-                },
+                onToggle = { viewModel.toggleNotifications(it) },
             )
+        }
+    }
+}
+
+@Composable
+fun DarkModeSelector(
+    selectedMode: DarkMode,
+    onModeSelected: (DarkMode) -> Unit,
+) {
+    Column {
+        DarkMode.entries.forEach { mode ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable { onModeSelected(mode) }
+                        .padding(8.dp),
+            ) {
+                RadioButton(
+                    selected = (mode == selectedMode),
+                    onClick = { onModeSelected(mode) },
+                )
+                Text(
+                    text =
+                        when (mode) {
+                            DarkMode.LIGHT -> "Light Mode"
+                            DarkMode.DARK -> "Dark Mode"
+                            DarkMode.SYSTEM -> "Follow System"
+                        },
+                    modifier = Modifier.padding(start = 8.dp),
+                )
+            }
         }
     }
 }

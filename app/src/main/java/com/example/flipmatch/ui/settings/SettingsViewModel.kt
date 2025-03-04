@@ -2,9 +2,11 @@ package com.example.flipmatch.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.flipmatch.data.DataStoreManager
+import com.example.flipmatch.data.repository.SettingsRepository
+import com.example.flipmatch.utils.DarkMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -13,27 +15,50 @@ import javax.inject.Inject
 class SettingsViewModel
     @Inject
     constructor(
-        private val dataStoreManager: DataStoreManager,
+        private val settingsRepository: SettingsRepository,
     ) : ViewModel() {
-        val darkMode = dataStoreManager.darkMode.stateIn(viewModelScope, SharingStarted.Lazily, false)
-        val sound = dataStoreManager.sound.stateIn(viewModelScope, SharingStarted.Lazily, true)
-        val notifications = dataStoreManager.notifications.stateIn(viewModelScope, SharingStarted.Lazily, true)
+        // StateFlow to observe Dark Mode setting
+        val darkMode: StateFlow<DarkMode> =
+            settingsRepository.darkMode.stateIn(
+                viewModelScope,
+                SharingStarted.Lazily,
+                DarkMode.SYSTEM,
+            )
 
-        fun toggleDarkMode(enabled: Boolean) {
+        // StateFlow to observe Sound setting
+        val sound: StateFlow<Boolean> =
+            settingsRepository.sound.stateIn(
+                viewModelScope,
+                SharingStarted.Lazily,
+                true,
+            )
+
+        // StateFlow to observe Notifications setting
+        val notifications: StateFlow<Boolean> =
+            settingsRepository.notifications.stateIn(
+                viewModelScope,
+                SharingStarted.Lazily,
+                true,
+            )
+
+        // Function to update Dark Mode setting
+        fun setDarkMode(mode: DarkMode) {
             viewModelScope.launch {
-                dataStoreManager.setDarkMode(enabled)
+                settingsRepository.setDarkMode(mode)
             }
         }
 
+        // Function to update Sound setting
         fun toggleSound(enabled: Boolean) {
             viewModelScope.launch {
-                dataStoreManager.setSound(enabled)
+                settingsRepository.setSound(enabled)
             }
         }
 
+        // Function to update Notifications setting
         fun toggleNotifications(enabled: Boolean) {
             viewModelScope.launch {
-                dataStoreManager.setNotifications(enabled)
+                settingsRepository.setNotifications(enabled)
             }
         }
     }

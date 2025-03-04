@@ -5,6 +5,7 @@ import android.content.Context
 import com.example.flipmatch.data.DataStoreManager
 import com.example.flipmatch.data.repository.PuzzleRepository
 import com.example.flipmatch.data.repository.PuzzleRepositoryImpl
+import com.example.flipmatch.data.repository.SettingsRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,4 +31,8 @@ object AppModule {
     fun provideDataStoreManager(
         @ApplicationContext context: Context,
     ): DataStoreManager = DataStoreManager(context)
+
+    @Provides
+    @Singleton
+    fun provideSettingsRepository(dataStoreManager: DataStoreManager): SettingsRepository = SettingsRepository(dataStoreManager)
 }
