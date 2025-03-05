@@ -27,26 +27,26 @@ fun FlipCard(
     if (card.isEmpty) {
         Box(
             modifier =
-            Modifier
-                .padding(4.dp)
-                .size(80.dp),
+                Modifier
+                    .padding(4.dp)
+                    .size(80.dp),
         ) {
             // Empty box (nothing rendered)
         }
     } else {
         Card(
             modifier =
-            modifier
-                .padding(4.dp)
-                .size(80.dp)
-                .clickable { onCardClick() },
+                modifier
+                    .padding(4.dp)
+                    .size(80.dp)
+                    .clickable { onCardClick() },
             shape = RoundedCornerShape(8.dp),
         ) {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier =
-                Modifier
-                    .fillMaxSize(),
+                    Modifier
+                        .fillMaxSize(),
             ) {
                 if (card.isFlipped) {
                     if (card.imageRes != null) {
@@ -67,7 +67,7 @@ fun FlipCard(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text("❔", fontSize = 32.sp) // Back of the card
+                        Text("", fontSize = 32.sp) // Back of the card
                     }
                 }
             }

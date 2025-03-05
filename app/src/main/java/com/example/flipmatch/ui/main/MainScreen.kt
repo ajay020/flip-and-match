@@ -27,11 +27,6 @@ fun MainScreen(
     val currentRoute = navBackStackEntry?.destination?.route
 
     Scaffold(
-        topBar = {
-            if (currentRoute == Routes.HOME) {
-                MainTopBar()
-            }
-        },
         bottomBar = {
             AnimatedVisibility(visible = currentRoute !in setOf(Routes.GAME, Routes.SETTINGS)) {
                 BottomNavBar(navController)

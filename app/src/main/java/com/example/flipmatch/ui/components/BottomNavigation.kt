@@ -1,8 +1,9 @@
 package com.example.flipmatch.ui.components
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -14,6 +15,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.google.android.gms.games.leaderboard.Leaderboard
 
 @Composable
 fun BottomNavBar(navController: NavController) {
@@ -59,7 +61,7 @@ sealed class BottomNavItem(
 ) {
     data object Home : BottomNavItem("home", "Home", Icons.Default.Home)
 
-    data object Leaderboard : BottomNavItem("leaderboard", "Leaderboard", Icons.Default.Info)
+    data object Leaderboard : BottomNavItem("leaderboard", "Leaderboard", Icons.AutoMirrored.Default.List)
 
     data object Profile : BottomNavItem("profile", "Profile", Icons.Default.Person)
 }
