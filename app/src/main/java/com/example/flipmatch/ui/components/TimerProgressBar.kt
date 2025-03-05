@@ -58,7 +58,6 @@ fun TimerProgressBar(
             text = "Time Left: $remainingTime sec",
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black,
         )
     }
 }

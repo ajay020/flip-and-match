@@ -8,12 +8,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun HintAndExtraTimeButtons(
     hintsRemaining: Int,
+    extraTimeRemaining: Int,
     onHintClick: () -> Unit,
     onExtraTimeClick: () -> Unit,
 ) {
@@ -35,8 +35,9 @@ fun HintAndExtraTimeButtons(
         Button(
             onClick = onExtraTimeClick,
             modifier = Modifier.weight(1f).padding(8.dp),
+            enabled = extraTimeRemaining > 0, // Disable when extra time is used up
         ) {
-            Text("Extra Time", color = Color.White)
+            Text("Extra Time ($extraTimeRemaining)")
         }
     }
 }

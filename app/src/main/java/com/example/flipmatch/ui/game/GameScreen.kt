@@ -35,6 +35,7 @@ fun GameScreen(
     val movesCount by viewModel.movesCount.collectAsState()
     val score by viewModel.score.collectAsState()
     val hintsRemaining by viewModel.hintsRemaining.collectAsState()
+    val extraTimeRemaining by viewModel.extraTimeRemaining.collectAsState()
 
     Scaffold(
         topBar = {
@@ -51,9 +52,10 @@ fun GameScreen(
             movesCount = movesCount,
             score = score,
             hintsRemaining = hintsRemaining,
+            extraTimeRemaining = extraTimeRemaining,
             onCardClick = { cardIndex -> viewModel.flipCard(cardIndex) },
-            onHintClick = { viewModel.useHint()}
-
+            onHintClick = { viewModel.useHint() },
+            onExtraTimeClick = { viewModel.addExtraTime() },
         )
 
         if (isGameCompleted) {
@@ -78,10 +80,10 @@ fun MainContent(
     movesCount: Int = 0,
     score: Int = 0,
     hintsRemaining: Int = 0,
+    extraTimeRemaining: Int = 0,
     onCardClick: (Int) -> Unit,
     onHintClick: () -> Unit = {},
     onExtraTimeClick: () -> Unit = {},
-
 ) {
     Column(
         modifier = modifier.fillMaxSize(),
@@ -120,6 +122,7 @@ fun MainContent(
         // Hint & Extra Time Buttons (NEW)
         HintAndExtraTimeButtons(
             hintsRemaining = hintsRemaining,
+            extraTimeRemaining = extraTimeRemaining,
             onHintClick = onHintClick,
             onExtraTimeClick = onExtraTimeClick,
         )
@@ -157,6 +160,8 @@ private fun MainContentPreview() {
         remainingTime = 10,
         movesCount = 10,
         score = 10,
+        extraTimeRemaining = 0,
+        hintsRemaining = 0,
         onCardClick = {},
         onHintClick = {},
         onExtraTimeClick = {},

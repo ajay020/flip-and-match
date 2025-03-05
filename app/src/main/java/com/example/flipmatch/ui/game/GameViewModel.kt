@@ -43,14 +43,15 @@ class GameViewModel
         private val _hintsRemaining = MutableStateFlow(2) // User gets 2 hints
         val hintsRemaining: StateFlow<Int> = _hintsRemaining
 
+        private val _extraTimeRemaining = MutableStateFlow(2) // User gets 2 extra time uses
+        val extraTimeRemaining: StateFlow<Int> = _extraTimeRemaining
+
         private var firstSelectedCard: PuzzleCard? = null
         private var secondSelectedCard: PuzzleCard? = null
         private var currentPuzzle: Puzzle? = null
         private var isFlipAllowed = true
         private var currentPuzzleIndex = 0
         private var countdownJob: Job? = null
-        private var hintsUsed = 0
-        private val maxHints = 2
 
         init {
             loadPuzzles()
@@ -115,6 +116,13 @@ class GameViewModel
 
                 _hintsRemaining.value -= 1 // Reduce hint count
             }
+        }
+
+        fun addExtraTime() {
+            if (_extraTimeRemaining.value <= 0) return
+
+            _remainingTime.value += 15
+            _extraTimeRemaining.value -= 1
         }
 
         private fun startCountdown() {
@@ -232,6 +240,7 @@ class GameViewModel
             _movesCount.value = 0
             _score.value = 0
             _remainingTime.value = 30
+            _hintsRemaining.value = 2
             currentPuzzleIndex++
             if (currentPuzzleIndex < repository.getPuzzles().size) {
                 loadPuzzles()
