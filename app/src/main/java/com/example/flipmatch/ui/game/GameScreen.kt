@@ -2,33 +2,27 @@ package com.example.flipmatch.ui.game
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.flipmatch.data.model.PuzzleCard
-import com.example.flipmatch.ui.components.FlipCard
 import com.example.flipmatch.ui.components.GameCompleteDialog
+import com.example.flipmatch.ui.components.GameGrid
 import com.example.flipmatch.ui.components.GameTopBar
+import com.example.flipmatch.ui.components.HintAndExtraTimeButtons
+import com.example.flipmatch.ui.components.MovesAndScore
 import com.example.flipmatch.ui.components.TimerProgressBar
-import kotlin.math.sqrt
 
 @Composable
 fun GameScreen(
@@ -40,6 +34,7 @@ fun GameScreen(
     val remainingTime by viewModel.remainingTime.collectAsState()
     val movesCount by viewModel.movesCount.collectAsState()
     val score by viewModel.score.collectAsState()
+    val hintsRemaining by viewModel.hintsRemaining.collectAsState()
 
     Scaffold(
         topBar = {
@@ -49,47 +44,18 @@ fun GameScreen(
             )
         },
     ) { paddingValues ->
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            // Timer progress bar
-            TimerProgressBar(
-                modifier =
-                    Modifier
-                        .weight(1f)
-                        .padding(16.dp),
-                remainingTime = remainingTime,
-                totalTime = 30,
-            )
+        MainContent(
+            modifier = Modifier.padding(paddingValues),
+            remainingTime = remainingTime,
+            cards = cards,
+            movesCount = movesCount,
+            score = score,
+            hintsRemaining = hintsRemaining,
+            onCardClick = { cardIndex -> viewModel.flipCard(cardIndex) },
+            onHintClick = { viewModel.useHint()}
 
-            // Display Moves & Score
-            Column(
-                modifier = Modifier.weight(2f),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top,
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Text("Moves: $movesCount", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    Text("Score: $score", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                }
+        )
 
-                Spacer(Modifier.height(16.dp))
-                // Grid content
-                GridContent(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    cards = cards,
-                    onCardClick = { cardIndex -> viewModel.flipCard(cardIndex) },
-                )
-            }
-        }
         if (isGameCompleted) {
             GameCompleteDialog(
                 score = score,
@@ -105,50 +71,75 @@ fun GameScreen(
 }
 
 @Composable
-fun GridContent(
+fun MainContent(
     modifier: Modifier = Modifier,
-    cards: List<PuzzleCard>,
+    cards: List<PuzzleCard> = emptyList(),
+    remainingTime: Int = 0,
+    movesCount: Int = 0,
+    score: Int = 0,
+    hintsRemaining: Int = 0,
     onCardClick: (Int) -> Unit,
-) {
-    val gridSize = sqrt(cards.size.toDouble()).toInt()
+    onHintClick: () -> Unit = {},
+    onExtraTimeClick: () -> Unit = {},
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(gridSize),
-        modifier =
-            modifier
-                .padding(4.dp),
+) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceBetween,
     ) {
-        itemsIndexed(cards) { index, card ->
-            FlipCard(
-                modifier =
-                    Modifier
-                        .padding(4.dp),
-                card = card,
-                onCardClick = {
-                    if (cards[index].id != -1) {
-                        onCardClick(index)
-                    }
-                },
+        // Timer progress bar
+        TimerProgressBar(
+            modifier =
+                Modifier
+                    .padding(16.dp),
+            remainingTime = remainingTime,
+            totalTime = 30,
+        )
+
+        Column(
+            modifier = Modifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top,
+        ) {
+            // Display Moves & Score
+            MovesAndScore(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                movesCount = movesCount,
+                score = score,
+            )
+            Spacer(Modifier.height(16.dp))
+            // Grid content
+            GameGrid(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                cards = cards,
+                onCardClick = { onCardClick(it) },
             )
         }
+
+        // Hint & Extra Time Buttons (NEW)
+        HintAndExtraTimeButtons(
+            hintsRemaining = hintsRemaining,
+            onHintClick = onHintClick,
+            onExtraTimeClick = onExtraTimeClick,
+        )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun GridContentPreview() {
+private fun MainContentPreview() {
     val cards =
         listOf(
             PuzzleCard(
                 id = 1,
                 imageRes = null,
-                emoji = null,
+                emoji = "😂",
             ),
             PuzzleCard(
                 id = 2,
                 imageRes = null,
-                emoji = "🥰",
-                isFlipped = true,
+                emoji = "😂",
             ),
             PuzzleCard(
                 id = 3,
@@ -158,28 +149,16 @@ fun GridContentPreview() {
             PuzzleCard(
                 id = 4,
                 imageRes = null,
-                emoji = "😎",
-            ),
-            PuzzleCard(
-                id = 5,
-                imageRes = null,
-                emoji = "⌛",
-            ),
-            PuzzleCard(
-                id = 6,
-                imageRes = null,
-                emoji = "✅",
+                emoji = "😂",
             ),
         )
-
-    val gridSize = 4
-    val imageCards = (cards + cards).take(gridSize * gridSize)
-    val emptySlots = (gridSize * gridSize) - imageCards.size
-    val cardsWithEmptySlots = (imageCards + List(emptySlots) { PuzzleCard.EMPTY }).shuffled()
-
-    GridContent(
-        modifier = Modifier,
-        cards = cardsWithEmptySlots,
+    MainContent(
+        cards = cards,
+        remainingTime = 10,
+        movesCount = 10,
+        score = 10,
         onCardClick = {},
+        onHintClick = {},
+        onExtraTimeClick = {},
     )
 }

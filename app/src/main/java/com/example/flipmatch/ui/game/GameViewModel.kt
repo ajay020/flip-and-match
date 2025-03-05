@@ -40,12 +40,17 @@ class GameViewModel
         private val _remainingTime = MutableStateFlow(30)
         val remainingTime: StateFlow<Int> = _remainingTime
 
+        private val _hintsRemaining = MutableStateFlow(2) // User gets 2 hints
+        val hintsRemaining: StateFlow<Int> = _hintsRemaining
+
         private var firstSelectedCard: PuzzleCard? = null
         private var secondSelectedCard: PuzzleCard? = null
         private var currentPuzzle: Puzzle? = null
         private var isFlipAllowed = true
         private var currentPuzzleIndex = 0
         private var countdownJob: Job? = null
+        private var hintsUsed = 0
+        private val maxHints = 2
 
         init {
             loadPuzzles()
@@ -83,6 +88,32 @@ class GameViewModel
                             Log.e("ProfileViewModel", "Failed to update score.")
                         }
                     }
+            }
+        }
+
+        fun useHint() {
+            if (_hintsRemaining.value <= 0) return // Disable if no hints left
+
+            val unmatchedPairs =
+                _cards.value
+                    .filter { !it.isMatched && !it.isFlipped }
+                    .groupBy { it.id }
+                    .values
+                    .filter { it.size == 2 } // Ensure we get pairs
+
+            if (unmatchedPairs.isNotEmpty()) {
+                val pairToReveal = unmatchedPairs.random() // Pick a random unmatched pair
+
+                _cards.value =
+                    _cards.value.map { card ->
+                        if (pairToReveal.any { it.id == card.id }) {
+                            card.copy(isFlipped = true, isMatched = true)
+                        } else {
+                            card
+                        }
+                    }
+
+                _hintsRemaining.value -= 1 // Reduce hint count
             }
         }
 
