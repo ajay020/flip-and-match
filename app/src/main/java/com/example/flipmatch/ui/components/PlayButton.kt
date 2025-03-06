@@ -55,7 +55,7 @@ fun PlayButton(
                 Brush.horizontalGradient(
                     listOf(
                         MaterialTheme.colorScheme.primary,
-                        MaterialTheme.colorScheme.secondary,
+                        MaterialTheme.colorScheme.primaryContainer,
                     ),
                 ),
                 shape = CircleShape,

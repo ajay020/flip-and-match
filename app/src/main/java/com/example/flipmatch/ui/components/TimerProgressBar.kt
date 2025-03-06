@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,9 +47,9 @@ fun TimerProgressBar(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .height(8.dp)
+                    .height(12.dp)
                     .clip(RoundedCornerShape(4.dp)),
-            color = Color.Green,
+            color = MaterialTheme.colorScheme.primary,
             trackColor = Color.Gray.copy(alpha = 0.3f),
         )
 

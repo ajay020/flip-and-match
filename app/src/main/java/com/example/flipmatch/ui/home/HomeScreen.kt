@@ -40,8 +40,7 @@ fun HomeScreen(onStartGame: () -> Unit) {
                 contentAlignment = Alignment.Center,
             ) {
                 PlayButton(
-                    modifier =
-                    Modifier,
+                    modifier = Modifier,
                     onClick = { onStartGame() },
                 )
             }

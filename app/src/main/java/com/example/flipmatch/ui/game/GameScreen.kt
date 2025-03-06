@@ -36,11 +36,13 @@ fun GameScreen(
     val score by viewModel.score.collectAsState()
     val hintsRemaining by viewModel.hintsRemaining.collectAsState()
     val extraTimeRemaining by viewModel.extraTimeRemaining.collectAsState()
+    val level by viewModel.level.collectAsState()
 
     Scaffold(
         topBar = {
             GameTopBar(
                 modifier = Modifier,
+                level = level,
                 onClose = { navController.popBackStack() },
             )
         },

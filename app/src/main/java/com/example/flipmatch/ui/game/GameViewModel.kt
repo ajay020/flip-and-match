@@ -46,6 +46,9 @@ class GameViewModel
         private val _extraTimeRemaining = MutableStateFlow(2) // User gets 2 extra time uses
         val extraTimeRemaining: StateFlow<Int> = _extraTimeRemaining
 
+        private val _level = MutableStateFlow(1)
+        val level: StateFlow<Int> = _level
+
         private var firstSelectedCard: PuzzleCard? = null
         private var secondSelectedCard: PuzzleCard? = null
         private var currentPuzzle: Puzzle? = null
@@ -242,6 +245,7 @@ class GameViewModel
             _remainingTime.value = 30
             _hintsRemaining.value = 2
             currentPuzzleIndex++
+            _level.value++
             if (currentPuzzleIndex < repository.getPuzzles().size) {
                 loadPuzzles()
                 startCountdown()
