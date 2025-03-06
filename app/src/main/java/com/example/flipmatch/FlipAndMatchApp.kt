@@ -27,7 +27,7 @@ fun FlipAndMatchApp(viewModel: SettingsViewModel = hiltViewModel()) {
         when (darkMode) {
             DarkMode.DARK -> true
             DarkMode.LIGHT -> false
-            DarkMode.SYSTEM -> isSystemInDarkTheme() // Auto mode
+            DarkMode.SYSTEM -> isSystemInDarkTheme()
         }
 
     FlipMatchTheme(

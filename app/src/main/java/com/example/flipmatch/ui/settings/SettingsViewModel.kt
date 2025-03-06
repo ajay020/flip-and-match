@@ -7,58 +7,62 @@ import com.example.flipmatch.utils.DarkMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Suppress("ktlint:standard:backing-property-naming")
 @HiltViewModel
 class SettingsViewModel
     @Inject
     constructor(
         private val settingsRepository: SettingsRepository,
     ) : ViewModel() {
-        // StateFlow to observe Dark Mode setting
-        val darkMode: StateFlow<DarkMode> =
-            settingsRepository.darkMode.stateIn(
+        private val _darkMode = settingsRepository.darkMode
+        val darkMode =
+            _darkMode.stateIn(
                 viewModelScope,
                 SharingStarted.Lazily,
                 DarkMode.SYSTEM,
             )
+        private val _soundEnabled = settingsRepository.sound
+        private val _notificationsEnabled = settingsRepository.notifications
 
-        // StateFlow to observe Sound setting
-        val sound: StateFlow<Boolean> =
-            settingsRepository.sound.stateIn(
+        val uiState: StateFlow<SettingsUiState> =
+            combine(
+                _darkMode,
+                _soundEnabled,
+                _notificationsEnabled,
+            ) { darkMode, soundEnabled, notificationsEnabled ->
+                SettingsUiState(darkMode, soundEnabled, notificationsEnabled)
+            }.stateIn(
                 viewModelScope,
                 SharingStarted.Lazily,
-                true,
+                SettingsUiState(),
             )
 
-        // StateFlow to observe Notifications setting
-        val notifications: StateFlow<Boolean> =
-            settingsRepository.notifications.stateIn(
-                viewModelScope,
-                SharingStarted.Lazily,
-                true,
-            )
-
-        // Function to update Dark Mode setting
         fun setDarkMode(mode: DarkMode) {
             viewModelScope.launch {
                 settingsRepository.setDarkMode(mode)
             }
         }
 
-        // Function to update Sound setting
         fun toggleSound(enabled: Boolean) {
             viewModelScope.launch {
                 settingsRepository.setSound(enabled)
             }
         }
 
-        // Function to update Notifications setting
         fun toggleNotifications(enabled: Boolean) {
             viewModelScope.launch {
                 settingsRepository.setNotifications(enabled)
             }
         }
     }
+
+data class SettingsUiState(
+    val darkMode: DarkMode = DarkMode.SYSTEM,
+    val soundEnabled: Boolean = true,
+    val notificationsEnabled: Boolean = true,
+)

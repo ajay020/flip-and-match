@@ -35,9 +35,7 @@ fun SettingsScreen(
     navigateToProfile: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
-    val darkMode by viewModel.darkMode.collectAsState()
-    val sound by viewModel.sound.collectAsState()
-    val notifications by viewModel.notifications.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         topBar = {
@@ -63,17 +61,17 @@ fun SettingsScreen(
             )
 
             Text(text = "Dark Mode", style = MaterialTheme.typography.bodyLarge)
-            DarkModeSelector(darkMode, onModeSelected = { viewModel.setDarkMode(it) })
+            DarkModeSelector(uiState.darkMode, onModeSelected = { viewModel.setDarkMode(it) })
 
             SettingItem(
                 title = "Sound",
-                checked = sound,
+                checked = uiState.soundEnabled,
                 onToggle = { viewModel.toggleSound(it) },
             )
 
             SettingItem(
                 title = "Notifications",
-                checked = notifications,
+                checked = uiState.notificationsEnabled,
                 onToggle = { viewModel.toggleNotifications(it) },
             )
         }

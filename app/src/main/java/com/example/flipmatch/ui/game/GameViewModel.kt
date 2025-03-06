@@ -13,7 +13,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,29 +28,8 @@ class GameViewModel
         private val userRepository: UserRepository,
         private val auth: FirebaseAuth,
     ) : ViewModel() {
-        private val _cards = MutableStateFlow<List<PuzzleCard>>(emptyList())
-        val cards: StateFlow<List<PuzzleCard>> = _cards
-
-        private val _isGameCompleted = MutableStateFlow(false)
-        val isGameCompleted: StateFlow<Boolean> = _isGameCompleted
-
-        private val _movesCount = MutableStateFlow(0) // Track moves
-        val movesCount: StateFlow<Int> = _movesCount
-
-        private val _score = MutableStateFlow(0) // Track score
-        val score: StateFlow<Int> = _score
-
-        private val _remainingTime = MutableStateFlow(30)
-        val remainingTime: StateFlow<Int> = _remainingTime
-
-        private val _hintsRemaining = MutableStateFlow(2) // User gets 2 hints
-        val hintsRemaining: StateFlow<Int> = _hintsRemaining
-
-        private val _extraTimeRemaining = MutableStateFlow(2) // User gets 2 extra time uses
-        val extraTimeRemaining: StateFlow<Int> = _extraTimeRemaining
-
-        private val _level = MutableStateFlow(1)
-        val level: StateFlow<Int> = _level
+        private val _uiState = MutableStateFlow(GameUiState())
+        val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
         private var firstSelectedCard: PuzzleCard? = null
         private var secondSelectedCard: PuzzleCard? = null
@@ -63,17 +45,21 @@ class GameViewModel
         }
 
         private fun observeCards() {
-            // Observe cards to check for completion
             viewModelScope.launch {
-                _cards.collectLatest { cards ->
-                    if (cards.isNotEmpty() && cards.all { it.isMatched || it.id == -1 }) {
-                        calculateFinalScore()
-                        currentPuzzle?.let {
-                            updateScore(it.difficulty, _score.value)
+                _uiState
+                    .map { it.cards } // Extract only the cards list
+                    .distinctUntilChanged() // Prevent unnecessary emissions
+                    .collect { cards ->
+                        if (cards.isNotEmpty() && cards.all { it.isMatched || it.id == -1 }) {
+                            if (!_uiState.value.isGameCompleted) { // Prevent multiple triggers
+                                calculateFinalScore()
+                                currentPuzzle?.let {
+                                    updateScore(it.difficulty, _uiState.value.score)
+                                }
+                                completeGame()
+                            }
                         }
-                        completeGame()
                     }
-                }
             }
         }
 
@@ -83,98 +69,60 @@ class GameViewModel
         ) {
             val uid = auth.currentUser?.uid ?: return
             viewModelScope.launch {
-                userRepository
-                    .updateUserScore(uid, puzzleType, newScore)
-                    .collect { success ->
-                        if (success) {
-                            Log.d("ProfileViewModel", "Score updated successfully!")
-                        } else {
-                            Log.e("ProfileViewModel", "Failed to update score.")
-                        }
+                userRepository.updateUserScore(uid, puzzleType, newScore).collect { success ->
+                    if (success) {
+                        Log.d("GameViewModel", "Score updated successfully!")
+                    } else {
+                        Log.e("GameViewModel", "Failed to update score.")
                     }
+                }
             }
-        }
-
-        fun useHint() {
-            if (_hintsRemaining.value <= 0) return // Disable if no hints left
-
-            val unmatchedPairs =
-                _cards.value
-                    .filter { !it.isMatched && !it.isFlipped }
-                    .groupBy { it.id }
-                    .values
-                    .filter { it.size == 2 } // Ensure we get pairs
-
-            if (unmatchedPairs.isNotEmpty()) {
-                val pairToReveal = unmatchedPairs.random() // Pick a random unmatched pair
-
-                _cards.value =
-                    _cards.value.map { card ->
-                        if (pairToReveal.any { it.id == card.id }) {
-                            card.copy(isFlipped = true, isMatched = true)
-                        } else {
-                            card
-                        }
-                    }
-
-                _hintsRemaining.value -= 1 // Reduce hint count
-            }
-        }
-
-        fun addExtraTime() {
-            if (_extraTimeRemaining.value <= 0) return
-
-            _remainingTime.value += 15
-            _extraTimeRemaining.value -= 1
         }
 
         private fun startCountdown() {
-            countdownJob?.cancel() // Cancel any existing timer
+            countdownJob?.cancel()
             countdownJob =
                 viewModelScope.launch {
-                    while (_remainingTime.value > 0) {
-                        delay(1000L) // Wait for 1 second
-                        _remainingTime.value -= 1
+                    while (_uiState.value.remainingTime > 0) {
+                        delay(1000L)
+                        _uiState.update { it.copy(remainingTime = it.remainingTime - 1) }
                     }
-                    completeGame() // Auto-complete game if time runs out
+                    completeGame()
                 }
         }
 
         private fun loadPuzzles() {
             val puzzles = repository.getPuzzles()
+            if (currentPuzzleIndex >= puzzles.size) return
+
             val puzzle = puzzles[currentPuzzleIndex]
             currentPuzzle = puzzle
-            val gridSize = puzzle.gridSize // Use fixed grid size
+            val gridSize = puzzle.gridSize
             val totalCells = gridSize * gridSize
-
-            // Duplicate images to form pairs
             val imagePairs = puzzle.images.flatMap { listOf(it, it) }
-
-            // Ensure there are enough images to fill the grid
             val imageCards = imagePairs.shuffled().take(totalCells)
-
-            // If we don't have enough image cards, fill remaining slots with empty cards
             val emptySlots = totalCells - imageCards.size
             val finalCards = imageCards + List(emptySlots) { PuzzleCard.EMPTY }
 
-            _cards.value = finalCards.shuffled()
+            _uiState.update { it.copy(cards = finalCards.shuffled()) }
         }
 
         fun flipCard(cardIndex: Int) {
-            // Don't allow flipping if it's not the user's turn
+            val state = _uiState.value
             if (!isFlipAllowed) return
-            val card = _cards.value[cardIndex]
+            val card = state.cards[cardIndex]
 
-            // the card is already flipped or matched, don't flip again
             if (card.isFlipped || card.isMatched) return
 
-            updateCard(cardIndex, card.copy(isFlipped = true))
+            val updatedCards = state.cards.toMutableList()
+            updatedCards[cardIndex] = card.copy(isFlipped = true)
+            _uiState.update { it.copy(cards = updatedCards) }
 
             when {
                 firstSelectedCard == null -> firstSelectedCard = card
                 secondSelectedCard == null -> {
                     secondSelectedCard = card
-                    _movesCount.value += 1 // Increase move count
+                    _uiState.update { it.copy(movesCount = it.movesCount + 1) }
                     checkForMatch()
                 }
             }
@@ -182,14 +130,13 @@ class GameViewModel
 
         private fun checkForMatch() {
             if (firstSelectedCard == null || secondSelectedCard == null) return
-            isFlipAllowed = false // Disable further clicks
+            isFlipAllowed = false
 
             if (firstSelectedCard!!.id == secondSelectedCard!!.id) {
                 matchCards(firstSelectedCard!!)
-                _score.value += 10 // Add 10 points for a match
-                resetSelection()
+                _uiState.update { it.copy(score = it.score + 10) }
             } else {
-                _score.value -= 2 // Deduct 2 points for an incorrect match
+                _uiState.update { it.copy(score = it.score - 2) }
                 viewModelScope.launch {
                     delay(500)
                     flipBackCards()
@@ -197,34 +144,36 @@ class GameViewModel
             }
         }
 
-        private fun updateCard(
-            index: Int,
-            card: PuzzleCard,
-        ) {
-            _cards.value =
-                _cards.value.mapIndexed { i, puzzleCard ->
-                    if (i == index) card else puzzleCard
-                }
-        }
-
         private fun matchCards(card: PuzzleCard) {
-            _cards.value =
-                _cards.value.map { puzzleCard ->
-                    if (card.id == puzzleCard.id) puzzleCard.copy(isMatched = true) else puzzleCard
-                }
+            _uiState.update { state ->
+                state.copy(
+                    cards =
+                        state.cards.map {
+                            if (it.id == card.id) it.copy(isMatched = true) else it
+                        },
+                )
+            }
             resetSelection()
         }
 
         private fun flipBackCards() {
-            _cards.value =
-                _cards.value.map {
-                    if (it.id == firstSelectedCard!!.id || it.id == secondSelectedCard!!.id) {
-                        it.copy(isFlipped = false)
-                    } else {
-                        it
-                    }
-                }
+            _uiState.update { state ->
+                state.copy(
+                    cards =
+                        state.cards.map {
+                            if (it.id == firstSelectedCard!!.id || it.id == secondSelectedCard!!.id) {
+                                it.copy(isFlipped = false)
+                            } else {
+                                it
+                            }
+                        },
+                )
+            }
             resetSelection()
+        }
+
+        fun closeCompletionDialog() {
+            _uiState.update { it.copy(isGameCompleted = false) }
         }
 
         private fun resetSelection() {
@@ -234,18 +183,22 @@ class GameViewModel
         }
 
         private fun completeGame() {
-            _isGameCompleted.value = true
+            _uiState.update { it.copy(isGameCompleted = true) }
             countdownJob?.cancel()
         }
 
         fun startNewGame() {
-            _isGameCompleted.value = false
-            _movesCount.value = 0
-            _score.value = 0
-            _remainingTime.value = 30
-            _hintsRemaining.value = 2
+            _uiState.update {
+                it.copy(
+                    isGameCompleted = false,
+                    movesCount = 0,
+                    score = 0,
+                    remainingTime = 30,
+                    hintsRemaining = 2,
+                    level = it.level + 1,
+                )
+            }
             currentPuzzleIndex++
-            _level.value++
             if (currentPuzzleIndex < repository.getPuzzles().size) {
                 loadPuzzles()
                 startCountdown()
@@ -253,7 +206,57 @@ class GameViewModel
         }
 
         private fun calculateFinalScore() {
-            val timeBonus = _remainingTime.value / 2 // Give extra points for remaining time
-            _score.value += timeBonus
+            val timeBonus = _uiState.value.remainingTime / 2
+            _uiState.update { it.copy(score = it.score + timeBonus) }
+        }
+
+        fun useHint() {
+            val state = _uiState.value
+            if (state.hintsRemaining <= 0) return
+
+            val unmatchedPairs =
+                state.cards
+                    .filter { !it.isMatched && !it.isFlipped }
+                    .groupBy { it.id }
+                    .values
+                    .filter { it.size == 2 }
+
+            if (unmatchedPairs.isNotEmpty()) {
+                val pairToReveal = unmatchedPairs.random()
+
+                _uiState.update {
+                    it.copy(
+                        cards =
+                            it.cards.map { card ->
+                                if (pairToReveal.any { it.id == card.id }) {
+                                    card.copy(isFlipped = true, isMatched = true)
+                                } else {
+                                    card
+                                }
+                            },
+                        hintsRemaining = it.hintsRemaining - 1,
+                    )
+                }
+            }
+        }
+
+        fun addExtraTime() {
+            _uiState.update {
+                it.copy(
+                    remainingTime = it.remainingTime + 15,
+                    extraTimeRemaining = it.extraTimeRemaining - 1,
+                )
+            }
         }
     }
+
+data class GameUiState(
+    val cards: List<PuzzleCard> = emptyList(),
+    val isGameCompleted: Boolean = false,
+    val movesCount: Int = 0,
+    val score: Int = 0,
+    val remainingTime: Int = 30,
+    val hintsRemaining: Int = 2,
+    val extraTimeRemaining: Int = 2,
+    val level: Int = 1,
+)

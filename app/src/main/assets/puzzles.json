@@ -2,6 +2,15 @@
   {
     "id": 1,
     "difficulty": "easy",
+    "gridSize": 2,
+    "images": [
+      { "id": 1, "imageRes": null, "emoji": "⌛" },
+      { "id": 2, "imageRes": null, "emoji": "🦒" }
+    ]
+  },
+  {
+    "id": 2,
+    "difficulty": "easy",
     "gridSize": 4,
     "images": [
       { "id": 1, "imageRes": null, "emoji": "😊" },
@@ -12,15 +21,6 @@
       { "id": 6, "imageRes": null, "emoji": "👽" },
       { "id": 7, "imageRes": null, "emoji": "👻" },
       { "id": 8, "imageRes": null, "emoji": "🦒" }
-    ]
-  },
-  {
-    "id": 2,
-    "difficulty": "easy",
-    "gridSize": 2,
-    "images": [
-      { "id": 1, "imageRes": null, "emoji": "⌛" },
-      { "id": 2, "imageRes": null, "emoji": "🦒" }
     ]
   }
 ]

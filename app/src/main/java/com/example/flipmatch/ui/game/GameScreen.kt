@@ -29,44 +29,33 @@ fun GameScreen(
     navController: NavController,
     viewModel: GameViewModel = hiltViewModel(),
 ) {
-    val cards by viewModel.cards.collectAsState()
-    val isGameCompleted by viewModel.isGameCompleted.collectAsState()
-    val remainingTime by viewModel.remainingTime.collectAsState()
-    val movesCount by viewModel.movesCount.collectAsState()
-    val score by viewModel.score.collectAsState()
-    val hintsRemaining by viewModel.hintsRemaining.collectAsState()
-    val extraTimeRemaining by viewModel.extraTimeRemaining.collectAsState()
-    val level by viewModel.level.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         topBar = {
             GameTopBar(
                 modifier = Modifier,
-                level = level,
+                level = uiState.level,
                 onClose = { navController.popBackStack() },
             )
         },
     ) { paddingValues ->
         MainContent(
             modifier = Modifier.padding(paddingValues),
-            remainingTime = remainingTime,
-            cards = cards,
-            movesCount = movesCount,
-            score = score,
-            hintsRemaining = hintsRemaining,
-            extraTimeRemaining = extraTimeRemaining,
+            uiState = uiState,
             onCardClick = { cardIndex -> viewModel.flipCard(cardIndex) },
             onHintClick = { viewModel.useHint() },
             onExtraTimeClick = { viewModel.addExtraTime() },
         )
 
-        if (isGameCompleted) {
+        if (uiState.isGameCompleted) {
             GameCompleteDialog(
-                score = score,
+                score = uiState.score,
                 onNextGame = {
                     viewModel.startNewGame()
                 },
                 onQuit = {
+                    viewModel.closeCompletionDialog()
                     navController.popBackStack()
                 },
             )
@@ -77,15 +66,10 @@ fun GameScreen(
 @Composable
 fun MainContent(
     modifier: Modifier = Modifier,
-    cards: List<PuzzleCard> = emptyList(),
-    remainingTime: Int = 0,
-    movesCount: Int = 0,
-    score: Int = 0,
-    hintsRemaining: Int = 0,
-    extraTimeRemaining: Int = 0,
+    uiState: GameUiState,
     onCardClick: (Int) -> Unit,
-    onHintClick: () -> Unit = {},
-    onExtraTimeClick: () -> Unit = {},
+    onHintClick: () -> Unit,
+    onExtraTimeClick: () -> Unit,
 ) {
     Column(
         modifier = modifier.fillMaxSize(),
@@ -97,7 +81,7 @@ fun MainContent(
             modifier =
                 Modifier
                     .padding(16.dp),
-            remainingTime = remainingTime,
+            remainingTime = uiState.remainingTime,
             totalTime = 30,
         )
 
@@ -109,22 +93,22 @@ fun MainContent(
             // Display Moves & Score
             MovesAndScore(
                 modifier = Modifier.padding(horizontal = 16.dp),
-                movesCount = movesCount,
-                score = score,
+                movesCount = uiState.movesCount,
+                score = uiState.score,
             )
             Spacer(Modifier.height(16.dp))
             // Grid content
             GameGrid(
                 modifier = Modifier.padding(horizontal = 16.dp),
-                cards = cards,
+                cards = uiState.cards,
                 onCardClick = { onCardClick(it) },
             )
         }
 
         // Hint & Extra Time Buttons (NEW)
         HintAndExtraTimeButtons(
-            hintsRemaining = hintsRemaining,
-            extraTimeRemaining = extraTimeRemaining,
+            hintsRemaining = uiState.hintsRemaining,
+            extraTimeRemaining = uiState.extraTimeRemaining,
             onHintClick = onHintClick,
             onExtraTimeClick = onExtraTimeClick,
         )
@@ -157,13 +141,18 @@ private fun MainContentPreview() {
                 emoji = "😂",
             ),
         )
+
+    val uiState =
+        GameUiState(
+            cards = cards,
+            isGameCompleted = false,
+            movesCount = 0,
+            score = 0,
+            remainingTime = 30,
+        )
+
     MainContent(
-        cards = cards,
-        remainingTime = 10,
-        movesCount = 10,
-        score = 10,
-        extraTimeRemaining = 0,
-        hintsRemaining = 0,
+        uiState = uiState,
         onCardClick = {},
         onHintClick = {},
         onExtraTimeClick = {},
