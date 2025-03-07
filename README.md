@@ -1,4 +1,4 @@
-# Flip & Match 🎴🎮  
+# Flip & Match 🎴  
 
 A fun and engaging memory puzzle game where players flip cards to find matching pairs!  
 
@@ -18,8 +18,12 @@ A fun and engaging memory puzzle game where players flip cards to find matching 
 
 
 ## 🖼️ Screenshots  
-<img src="screenshots/screenshot1.png" width="300">  
-<img src="screenshots/screenshot2.png" width="300">  
+<img src="screenshots/login.png" width="300">  
+<img src="screenshots/home.png" width="300">  
+<img src="screenshots/game.png" width="300">  
+<img src="screenshots/game_dark.png" width="300">  
+<img src="screenshots/profile.png" width="300">  
+<img src="screenshots/settings.png" width="300">  
 
 ## 🚀 How to Play  
 1. Tap on a card to flip it.  
