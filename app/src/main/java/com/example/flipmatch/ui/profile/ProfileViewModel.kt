@@ -27,11 +27,8 @@ class ProfileViewModel
 
         private fun fetchUserData() {
             viewModelScope.launch {
-                userRepository
-                    .getUserData()
-                    .collect { user ->
-                        _userData.value = user
-                    }
+                val user = userRepository.getUserData()
+                _userData.value = user
             }
         }
 

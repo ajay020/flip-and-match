@@ -1,6 +1,5 @@
 package com.example.flipmatch.ui.game
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flipmatch.data.model.Puzzle
@@ -69,13 +68,7 @@ class GameViewModel
         ) {
             val uid = auth.currentUser?.uid ?: return
             viewModelScope.launch {
-                userRepository.updateUserScore(uid, puzzleType, newScore).collect { success ->
-                    if (success) {
-                        Log.d("GameViewModel", "Score updated successfully!")
-                    } else {
-                        Log.e("GameViewModel", "Failed to update score.")
-                    }
-                }
+                userRepository.updateUserScore(uid, puzzleType, newScore)
             }
         }
 

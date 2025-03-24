@@ -37,11 +37,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
     buildFeatures {
         compose = true
@@ -82,6 +82,9 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     implementation("com.google.dagger:hilt-android:2.51.1")
     implementation(libs.play.services.games)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit.junit)
+    testImplementation(libs.junit.junit)
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
     // Firebase Authentication
     implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
@@ -105,6 +108,17 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    // MockK for mocking dependencies
+    testImplementation("io.mockk:mockk:1.13.8")
+    // Kotlinx Coroutines Test
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+
+    // Turbine for Flow testing
+    testImplementation("app.cash.turbine:turbine:1.0.0")
+
+    // LiveData & StateFlow testing
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
+
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }

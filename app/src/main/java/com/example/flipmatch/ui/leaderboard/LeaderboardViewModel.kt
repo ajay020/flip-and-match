@@ -25,9 +25,8 @@ class LeaderboardViewModel
 
         private fun fetchLeaderboard() {
             viewModelScope.launch {
-                userRepository.getTopUsers().collect { users ->
-                    _leaderboard.value = users
-                }
+                val users = userRepository.getTopUsersWithCurrent()
+                _leaderboard.value = users
             }
         }
     }

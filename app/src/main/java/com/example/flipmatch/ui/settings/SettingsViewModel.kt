@@ -7,38 +7,35 @@ import com.example.flipmatch.utils.DarkMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@Suppress("ktlint:standard:backing-property-naming")
 @HiltViewModel
 class SettingsViewModel
     @Inject
     constructor(
         private val settingsRepository: SettingsRepository,
     ) : ViewModel() {
-        private val _darkMode = settingsRepository.darkMode
         val darkMode =
-            _darkMode.stateIn(
+            settingsRepository.darkMode.stateIn(
                 viewModelScope,
-                SharingStarted.Lazily,
+                SharingStarted.WhileSubscribed(5000),
                 DarkMode.SYSTEM,
             )
-        private val _soundEnabled = settingsRepository.sound
-        private val _notificationsEnabled = settingsRepository.notifications
 
         val uiState: StateFlow<SettingsUiState> =
             combine(
-                _darkMode,
-                _soundEnabled,
-                _notificationsEnabled,
+                darkMode,
+                settingsRepository.sound,
+                settingsRepository.notifications,
             ) { darkMode, soundEnabled, notificationsEnabled ->
                 SettingsUiState(darkMode, soundEnabled, notificationsEnabled)
             }.stateIn(
                 viewModelScope,
-                SharingStarted.Lazily,
+                SharingStarted.WhileSubscribed(5000),
                 SettingsUiState(),
             )
 
